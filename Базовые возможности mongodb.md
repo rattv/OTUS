@@ -23,7 +23,7 @@
 ![Успешное подключение к MongoDB](https://i.ibb.co/fGJSHd1/2023-04-11-213120.png)
 
 Создадим пользователя:
-```db.createUser( { user: "root", pwd: "asdqwe123", roles: [ "userAdminAnyDatabase", "dbAdminAnyDatabase", "readWriteAnyDatabase" ] } )```
+```db.createUser( { user: "root", pwd: "******", roles: [ "userAdminAnyDatabase", "dbAdminAnyDatabase", "readWriteAnyDatabase" ] } )```
 
 
 ![](https://i.ibb.co/VqZSvWy/2023-04-11-213120.png)
@@ -52,7 +52,50 @@
 ![](https://i.ibb.co/b5JDRsw/2023-04-11-213120.png)
 
 ### Написать несколько запросов на выборку и обновление данных
--- У кого есть питомец по имени Charlie
+* У кого есть питомец по имени Charlie
 
 ```db.people.find({"pets": "Charlie"})```
 ![](https://i.ibb.co/GtFZBjF/2023-04-11-213120.png)
+
+* У кого зарплата больше или равна 60000
+
+```db.people.find({"salary":{$gte: 60000}})```
+![](https://i.ibb.co/JzVrVSF/2023-04-11-213120.png)
+
+* У кого самый максимальный балл
+
+```db.people.find().sort({"score": -1 }).limit( 1 )```
+![](https://i.ibb.co/yWhXzLg/2023-04-11-213120.png)
+
+* Кто родился в 2019 году/сколько человек родились в 2019 году
+
+```db.people.find({dob: {$regex: '2019'}})```
+
+```db.people.countDocuments({dob: {$regex: '2019'}})```
+![](https://i.ibb.co/tPbrpKM/2023-04-11-213120.png)
+
+* Обновим номер телефона у определенного _id
+
+```db.people.updateOne({"_id" : 'EUPBY2S0HNV3MZS6'}, {$set:{"telephone": '8-800-555-35-35'}})```
+
+![](https://i.ibb.co/4125KVj/2023-04-11-213120.png)
+
+* Обновим все записи, с verified: false на verified:true
+
+```db.people.updateMany({ verified: false },{ $set: { verified: true } })```
+
+![](https://i.ibb.co/2N1hM5L/2023-04-11-213120.png)
+
+### Создать индексы и сравнить производительность
+
+Сделаем запрос без индекса ```{$and :[{"score":{$lte: 5}},{dob: {$regex: '2019'}}]}```
+
+![](https://i.ibb.co/5Mc4xfT/image.png)
+
+Создадим индекс по полю score: ```db.people.createIndex( {"score" : 1 })```
+![](https://i.ibb.co/ZX6VmV1/2023-04-11-233224.png)
+
+Отправим запрос повторно
+![](https://i.ibb.co/F57pcgJ/image.png)
+
+В виду малого количества данных тяжело оценить на сколько быстрее стал выполняться запрос, на скриншоте видно, что он стал использовать индекс score_1 при выполнении запроса
